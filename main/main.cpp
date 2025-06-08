@@ -117,7 +117,7 @@ int main() {
             getline(cin, nombre);  // Elimina el limpiarEntrada() extra
             
             // Usa la ruta completa al archivo
-            string rutaCompleta = "main/" + nombre;  // Asume que los archivos están en la carpeta main
+            string rutaCompleta = nombre;  // Asume que los archivos están en la carpeta main
             cargarDesdeArchivo(rutaCompleta, tablaUsuarios, heapPrioridades, registroAccesos);
         }
         else if (opcion == 1) {
