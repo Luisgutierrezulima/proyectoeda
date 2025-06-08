@@ -1,0 +1,5 @@
+12345,VIP,A,15:30
+67890,general,B,16:00
+11223,medico,C,14:15
+44556,discapacitado,A,17:45
+77889,seguridad,B,18:10
