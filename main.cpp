@@ -107,7 +107,7 @@ int main() {
             limpiarEntrada();
             continue;
         }
-
+        //soy un luis
         limpiarEntrada(); // Limpiar antes de cada caso
 
         if (opcion == 0) {
