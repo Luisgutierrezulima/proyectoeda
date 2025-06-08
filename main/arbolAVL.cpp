@@ -77,33 +77,34 @@ private:
     void insertar(Node*& nodo, int n) {
         if (nodo == nullptr) {
             nodo = new Node(n);
-        } else if (n == nodo->getDato()) {
+            return;  // Agregamos return para evitar acceder a un nodo nulo
+        }
+        
+        if (n == nodo->getDato()) {
             nodo->setContador(nodo->getContador() + 1);
-        } else if (n < nodo->getDato()) {
-            Node* tmp = nodo->getIzquierda();
-            insertar(tmp, n);
-            nodo->setIzquierda(tmp);
+            return;  // No necesitamos rebalancear si solo incrementamos el contador
+        }
+        
+        if (n < nodo->getDato()) {
+            insertar(nodo->getIzquierda(), n);
         } else {
-            Node* tmp = nodo->getDerecha();
-            insertar(tmp, n);
-            nodo->setDerecha(tmp);
+            insertar(nodo->getDerecha(), n);
         }
 
         actualizarAltura(nodo);
         int facBalance = factorBalance(nodo);
 
-        if (facBalance < -1 && n > nodo->getDerecha()->getDato())
+        // Verificamos que los nodos no sean nulos antes de acceder a ellos
+        if (facBalance < -1 && nodo->getDerecha() != nullptr && n > nodo->getDerecha()->getDato())
             nodo = rotacionIzquierda(nodo);
-        if (facBalance > 1 && n < nodo->getIzquierda()->getDato())
+        if (facBalance > 1 && nodo->getIzquierda() != nullptr && n < nodo->getIzquierda()->getDato())
             nodo = rotacionDerecha(nodo);
-        if (facBalance > 1 && n > nodo->getIzquierda()->getDato()) {
-            Node* tmp = rotacionIzquierda(nodo->getIzquierda());
-            nodo->setIzquierda(tmp);
+        if (facBalance > 1 && nodo->getIzquierda() != nullptr && n > nodo->getIzquierda()->getDato()) {
+            nodo->setIzquierda(rotacionIzquierda(nodo->getIzquierda()));
             nodo = rotacionDerecha(nodo);
         }
-        if (facBalance < -1 && n < nodo->getDerecha()->getDato()) {
-            Node* tmp = rotacionDerecha(nodo->getDerecha());
-            nodo->setDerecha(tmp);
+        if (facBalance < -1 && nodo->getDerecha() != nullptr && n < nodo->getDerecha()->getDato()) {
+            nodo->setDerecha(rotacionDerecha(nodo->getDerecha()));
             nodo = rotacionIzquierda(nodo);
         }
     }
