@@ -114,6 +114,7 @@ int main() {
         if (opcion == 0) {
             string nombre;
             cout << "Nombre del archivo (ej. datos_simulados.txt): ";
+            limpiarEntrada(); // <-- Agrega esto para limpiar el buffer
             getline(cin, nombre);
             cargarDesdeArchivo(nombre, tablaUsuarios, heapPrioridades, registroAccesos);
         }
