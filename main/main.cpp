@@ -114,9 +114,11 @@ int main() {
         if (opcion == 0) {
             string nombre;
             cout << "Nombre del archivo (ej. datos_simulados.txt): ";
-            limpiarEntrada(); // <-- Agrega esto para limpiar el buffer
-            getline(cin, nombre);
-            cargarDesdeArchivo(nombre, tablaUsuarios, heapPrioridades, registroAccesos);
+            getline(cin, nombre);  // Elimina el limpiarEntrada() extra
+            
+            // Usa la ruta completa al archivo
+            string rutaCompleta = "main/" + nombre;  // Asume que los archivos están en la carpeta main
+            cargarDesdeArchivo(rutaCompleta, tablaUsuarios, heapPrioridades, registroAccesos);
         }
         else if (opcion == 1) {
             int id;
