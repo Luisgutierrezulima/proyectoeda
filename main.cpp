@@ -108,7 +108,7 @@ int main() {
             continue;
         }
         //soy un luis
-        //amistad mas especial
+        //amistad mas especialtarao10
         limpiarEntrada(); // Limpiar antes de cada caso
 
         if (opcion == 0) {
