@@ -21,8 +21,8 @@ public:
     int getDato() { return dato; }
     int getAltura() { return altura; }
     int getContador() { return contador; }
-    Node* getIzquierda() { return izquierda; }
-    Node* getDerecha() { return derecha; }
+    Node*& getIzquierda() { return izquierda; }
+    Node*& getDerecha() { return derecha; }
 
     void setDato(int valor) { dato = valor; }
     void setAltura(int valor) { altura = valor; }
@@ -74,42 +74,44 @@ private:
         return nuevaRaiz;
     }
 
-    void insertar(Node*&nodo, int n) {
+     void insertar(Node*& nodo, int n) {
         if (nodo == nullptr) {
             nodo = new Node(n);
-            return;  // Agregamos return para evitar acceder a un nodo nulo
+            return;
         }
-        
         if (n == nodo->getDato()) {
             nodo->setContador(nodo->getContador() + 1);
-            return;  // No necesitamos rebalancear si solo incrementamos el contador
+            return;
         }
-        
         if (n < nodo->getDato()) {
-            Node* izq = nodo->getIzquierda();
-            insertar(izq, n);
-            nodo->setIzquierda(izq);
+            insertar(nodo->getIzquierda(), n);
         } else {
-            Node* der = nodo->getDerecha();
-            insertar(der, n);
-            nodo->setDerecha(der);
+            insertar(nodo->getDerecha(), n);
         }
- 
 
         actualizarAltura(nodo);
-        int facBalance = factorBalance(nodo);
+        int balance = factorBalance(nodo);
 
-        // Verificamos que los nodos no sean nulos antes de acceder a ellos
-        if (facBalance < -1 && nodo->getDerecha() != nullptr && n > nodo->getDerecha()->getDato())
-            nodo = rotacionIzquierda(nodo);
-        if (facBalance > 1 && nodo->getIzquierda() != nullptr && n < nodo->getIzquierda()->getDato())
-            nodo = rotacionDerecha(nodo);
-        if (facBalance > 1 && nodo->getIzquierda() != nullptr && n > nodo->getIzquierda()->getDato()) {
-            nodo->setIzquierda(rotacionIzquierda(nodo->getIzquierda()));
+        // Verifica que los hijos no sean nullptr antes de acceder a getDato()
+        Node* izq = nodo->getIzquierda();
+        Node* der = nodo->getDerecha();
+
+        // Caso Izquierda-Izquierda
+        if (balance > 1 && izq && n < izq->getDato()) {
             nodo = rotacionDerecha(nodo);
         }
-        if (facBalance < -1 && nodo->getDerecha() != nullptr && n < nodo->getDerecha()->getDato()) {
-            nodo->setDerecha(rotacionDerecha(nodo->getDerecha()));
+        // Caso Derecha-Derecha
+        else if (balance < -1 && der && n > der->getDato()) {
+            nodo = rotacionIzquierda(nodo);
+        }
+        // Caso Izquierda-Derecha
+        else if (balance > 1 && izq && n > izq->getDato()) {
+            nodo->setIzquierda(rotacionIzquierda(izq));
+            nodo = rotacionDerecha(nodo);
+        }
+        // Caso Derecha-Izquierda
+        else if (balance < -1 && der && n < der->getDato()) {
+            nodo->setDerecha(rotacionDerecha(der));
             nodo = rotacionIzquierda(nodo);
         }
     }
