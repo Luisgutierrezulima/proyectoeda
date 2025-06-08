@@ -74,7 +74,7 @@ private:
         return nuevaRaiz;
     }
 
-    void insertar(Node*& nodo, int n) {
+    void insertar(Node*&nodo, int n) {
         if (nodo == nullptr) {
             nodo = new Node(n);
             return;  // Agregamos return para evitar acceder a un nodo nulo
@@ -86,10 +86,15 @@ private:
         }
         
         if (n < nodo->getDato()) {
-            insertar(nodo->getIzquierda(), n);
+            Node* izq = nodo->getIzquierda();
+            insertar(izq, n);
+            nodo->setIzquierda(izq);
         } else {
-            insertar(nodo->getDerecha(), n);
+            Node* der = nodo->getDerecha();
+            insertar(der, n);
+            nodo->setDerecha(der);
         }
+ 
 
         actualizarAltura(nodo);
         int facBalance = factorBalance(nodo);
