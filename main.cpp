@@ -109,6 +109,7 @@ int main() {
         }
         //soy un luis
         //amistad mas carajo
+        //amistad mas especial es luis
         limpiarEntrada(); // Limpiar antes de cada caso
 
         if (opcion == 0) {
