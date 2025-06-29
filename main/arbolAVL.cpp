@@ -1,7 +1,7 @@
-
 #include <iostream>
-#include <map>
+#include <vector>
 using namespace std;
+
 
 class Node {
 private:
@@ -10,19 +10,17 @@ private:
     int contador;
     Node* izquierda;
     Node* derecha;
+
 public:
-    Node(int n) {
-        dato = n;
-        altura = 1;
-        contador = 1;
-        izquierda = nullptr;
-        derecha = nullptr;
-    }
+    Node(int n) : dato(n), altura(1), contador(1), izquierda(nullptr), derecha(nullptr) {}
+
+
     int getDato() { return dato; }
     int getAltura() { return altura; }
     int getContador() { return contador; }
     Node*& getIzquierda() { return izquierda; }
     Node*& getDerecha() { return derecha; }
+
 
     void setDato(int valor) { dato = valor; }
     void setAltura(int valor) { altura = valor; }
@@ -35,18 +33,27 @@ class ArbolAVL {
 private:
     Node* raiz;
 
+
     int altura(Node* nodo) {
         return nodo ? nodo->getAltura() : 0;
     }
+
+
+    int max(int a, int b) {
+        return (a > b) ? a : b;
+    }
+
 
     int factorBalance(Node* nodo) {
         return nodo ? altura(nodo->getIzquierda()) - altura(nodo->getDerecha()) : 0;
     }
 
+
     void actualizarAltura(Node* nodo) {
         int alt = 1 + max(altura(nodo->getIzquierda()), altura(nodo->getDerecha()));
         nodo->setAltura(alt);
     }
+
 
     Node* rotacionIzquierda(Node* actualRaiz) {
         Node* nuevaRaiz = actualRaiz->getDerecha();
@@ -61,6 +68,7 @@ private:
         return nuevaRaiz;
     }
 
+
     Node* rotacionDerecha(Node* actualRaiz) {
         Node* nuevaRaiz = actualRaiz->getIzquierda();
         Node* subArbol = nuevaRaiz->getDerecha();
@@ -74,15 +82,18 @@ private:
         return nuevaRaiz;
     }
 
-     void insertar(Node*& nodo, int n) {
+
+    void insertar(Node*& nodo, int n) {
         if (nodo == nullptr) {
             nodo = new Node(n);
             return;
         }
+
         if (n == nodo->getDato()) {
             nodo->setContador(nodo->getContador() + 1);
             return;
         }
+
         if (n < nodo->getDato()) {
             insertar(nodo->getIzquierda(), n);
         } else {
@@ -92,35 +103,23 @@ private:
         actualizarAltura(nodo);
         int balance = factorBalance(nodo);
 
-        // Verifica que los hijos no sean nullptr antes de acceder a getDato()
-        Node* izq = nodo->getIzquierda();
-        Node* der = nodo->getDerecha();
 
-        // Caso Izquierda-Izquierda
-        if (balance > 1 && izq && n < izq->getDato()) {
+        if (balance > 1 && n < nodo->getIzquierda()->getDato()) {
             nodo = rotacionDerecha(nodo);
         }
-        // Caso Derecha-Derecha
-        else if (balance < -1 && der && n > der->getDato()) {
+
+        else if (balance < -1 && n > nodo->getDerecha()->getDato()) {
             nodo = rotacionIzquierda(nodo);
         }
-        // Caso Izquierda-Derecha
-        else if (balance > 1 && izq && n > izq->getDato()) {
-            nodo->setIzquierda(rotacionIzquierda(izq));
+
+        else if (balance > 1 && n > nodo->getIzquierda()->getDato()) {
+            nodo->setIzquierda(rotacionIzquierda(nodo->getIzquierda()));
             nodo = rotacionDerecha(nodo);
         }
-        // Caso Derecha-Izquierda
-        else if (balance < -1 && der && n < der->getDato()) {
-            nodo->setDerecha(rotacionDerecha(der));
-            nodo = rotacionIzquierda(nodo);
-        }
-    }
 
-    void inorder(Node* nodo) {
-        if (nodo != nullptr) {
-            inorder(nodo->getIzquierda());
-            cout << nodo->getDato() << " (x" << nodo->getContador() << ") ";
-            inorder(nodo->getDerecha());
+        else if (balance < -1 && n < nodo->getDerecha()->getDato()) {
+            nodo->setDerecha(rotacionDerecha(nodo->getDerecha()));
+            nodo = rotacionIzquierda(nodo);
         }
     }
 
@@ -135,6 +134,26 @@ private:
             return buscar(nodo->getDerecha(), n);
     }
 
+
+    void buscarPorFranja(Node* nodo, int h1, int h2, vector<int>& resultados) {
+        if (nodo == nullptr) return;
+
+        int horaActual = nodo->getDato() / 10000;
+
+        if (horaActual >= h1) {
+            buscarPorFranja(nodo->getIzquierda(), h1, h2, resultados);
+        }
+
+        if (horaActual >= h1 && horaActual <= h2) {
+            resultados.push_back(nodo->getDato());
+        }
+
+        if (horaActual <= h2) {
+            buscarPorFranja(nodo->getDerecha(), h1, h2, resultados);
+        }
+    }
+
+
     void obtenerMayor(Node* nodo, int& maxDato, int& maxContador) {
         if (nodo == nullptr) return;
         obtenerMayor(nodo->getIzquierda(), maxDato, maxContador);
@@ -146,27 +165,52 @@ private:
     }
 
 public:
-    ArbolAVL() {
-        raiz = nullptr;
-    }
+    ArbolAVL() : raiz(nullptr) {}
+
 
     void insertarR(int n) {
         insertar(raiz, n);
     }
 
-    void inorderR() {
-        inorder(raiz);
-        cout << endl;
+    // Búsqueda por franja horaria
+    void buscarPorFranjaHoraria(int h1, int h2) {
+        vector<int> resultados;
+        buscarPorFranja(raiz, h1, h2, resultados);
+
+        if (resultados.empty()) {
+            cout << "No se encontraron accesos en esa franja horaria.\n";
+        } else {
+            cout << "Accesos encontrados:\n";
+            for (int clave : resultados) {
+                cout << "- " << decodificarHoraZona(clave) << endl;
+            }
+        }
     }
 
-    bool buscarR(int n) {
-        return buscar(raiz, n);
-    }
 
     int zonaConMasEntradas() {
         int maxDato = -1;
         int maxContador = 0;
         obtenerMayor(raiz, maxDato, maxContador);
         return maxDato;
+    }
+
+
+    void mostrarEstadisticas() {
+        int maxDato = zonaConMasEntradas();
+        if (maxDato == -1) {
+            cout << "No hay accesos registrados.\n";
+        } else {
+            cout << "Zona/horario con más accesos: " << decodificarHoraZona(maxDato) << endl;
+        }
+    }
+
+    string decodificarHoraZona(int codificado) {
+        int horaCodigo = codificado / 10000;
+        int hh = horaCodigo / 100;
+        int mm = horaCodigo % 100;
+        char buffer[6];
+        snprintf(buffer, sizeof(buffer), "%02d:%02d", hh, mm);
+        return string(buffer);
     }
 };
