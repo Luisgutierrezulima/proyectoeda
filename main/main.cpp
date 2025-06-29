@@ -1,3 +1,6 @@
+//VERIFIQUEN o cambien si lo ven necesario luises
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
