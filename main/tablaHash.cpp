@@ -7,11 +7,8 @@ private:
     Persona** tabla;
     int tam;
 
-    int funcionHash(const string& clave) {
-        int h = 0;
-        for (char c : clave)
-            h = (h * 31 + c) % tam;
-        return h;
+    int funcionHash(int clave) {
+        return clave % tam;
     }
 
 public:
@@ -29,7 +26,7 @@ public:
         tabla[pos] = p;
     }
 
-    Persona* buscar(const string& dni) {
+    Persona* buscar(int dni) {
         int pos = funcionHash(dni);
         int intentos = 0;
         while (tabla[pos] != nullptr && intentos < tam) {

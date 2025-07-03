@@ -18,22 +18,13 @@ void cargarDesdeTxt(const string& nombreArchivo,
         return;
     }
 
-    string nombre, apellido, dni, rol, zona, hora;
+    string nombre, apellido, rol, zona, hora;
+    int dni;
     int correctas = 0, total = 0;
 
-    while (archivo >> nombre
-                   >> apellido
-                   >> dni
-                   >> rol
-                   >> zona
-                   >> hora) {
+    while (archivo >> nombre >> apellido >> dni >> rol >> zona>> hora) {
         total++;
-        Persona* p = new Persona{nombre,
-                                 apellido,
-                                 dni,
-                                 rol,
-                                 zona,
-                                 hora};
+        Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
         tabla.insertar(p);
         heap.insertar(p);
         avl.insertar(zona, hora);
@@ -82,7 +73,7 @@ int main() {
             tablaUsuarios.insertar(p);
         }
         else if (opc == 2) {
-            string id; cout << "DNI: "; cin >> id;
+            int id; cout << "DNI: "; cin >> id;
             Persona* p = tablaUsuarios.buscar(id);
             if (!p) cout << "No existe DNI"<<endl;
             else    heapPrioridades.insertar(p);

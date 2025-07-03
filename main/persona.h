@@ -7,7 +7,7 @@ using namespace std;
 struct Persona {
     string nombre;
     string apellido;
-    string dni;
+    int dni;
     string rol;
     string zona;
     string horaEntrada;
