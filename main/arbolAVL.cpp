@@ -2,17 +2,22 @@
 #include "Persona.h"
 using namespace std;
 
-struct NodoAVL {
-    string clave;
-    int contador;
+class NodoAVL {
+public:
+    int dni;
+    string zona;
+    string hora;
     int altura;
-    NodoAVL *izq, *der;
+    NodoAVL* izq;
+    NodoAVL* der;
 
-    NodoAVL(const string& c) {
-        clave    = c;
-        contador = 1;
-        altura   = 1;
-        izq = der = nullptr;
+    NodoAVL(int dni, const string& zona, const string& hora) {
+        this->dni = dni;
+        this->zona = zona;
+        this->hora = hora;
+        this->altura = 1;
+        this->izq = nullptr;
+        this->der = nullptr;
     }
 };
 
@@ -20,86 +25,146 @@ class ArbolAVL {
 private:
     NodoAVL* raiz;
 
-    int altura(NodoAVL* n) {
-        return n ? n->altura : 0;
+    int altura(NodoAVL* nodo) {
+        return nodo ? nodo->altura : 0;
     }
 
-    void actualizar(NodoAVL* n) {
-        n->altura = 1 + max(altura(n->izq), altura(n->der));
+    int balance(NodoAVL* nodo) {
+        return nodo ? altura(nodo->izq) - altura(nodo->der) : 0;
     }
 
-    int balance(NodoAVL* n) {
-        return n ? altura(n->izq) - altura(n->der) : 0;
+    void actualizarAltura(NodoAVL* nodo) {
+        nodo->altura = 1 + max(altura(nodo->izq), altura(nodo->der));
     }
 
-    NodoAVL* rotIzq(NodoAVL* y) {
+    NodoAVL* rotarIzq(NodoAVL* y) {
         NodoAVL* x = y->der;
-        NodoAVL* t = x->izq;
-        x->izq = y; y->der = t;
-        actualizar(y); actualizar(x);
+        NodoAVL* t2 = x->izq;
+
+        x->izq = y;
+        y->der = t2;
+
+        actualizarAltura(y);
+        actualizarAltura(x);
         return x;
     }
 
-    NodoAVL* rotDer(NodoAVL* x) {
+    NodoAVL* rotarDer(NodoAVL* x) {
         NodoAVL* y = x->izq;
-        NodoAVL* t = y->der;
-        y->der = x; x->izq = t;
-        actualizar(x); actualizar(y);
+        NodoAVL* t2 = y->der;
+
+        y->der = x;
+        x->izq = t2;
+
+        actualizarAltura(x);
+        actualizarAltura(y);
         return y;
     }
 
-    NodoAVL* insertarRec(NodoAVL* nodo, const string& clave) {
-        if (!nodo) return new NodoAVL(clave);
-        if (clave == nodo->clave) {
-            nodo->contador++;
+    NodoAVL* insertar(NodoAVL* nodo, int dni, const string& zona, const string& hora) {
+        if (!nodo)
+            return new NodoAVL(dni, zona, hora);
+
+        if (dni == nodo->dni && zona == nodo->zona && hora == nodo->hora) {
+            cout << "El ingreso con DNI " << dni << " ya está registrado en zona "
+                 << zona << " a la hora " << hora << endl;
             return nodo;
         }
-        if (clave < nodo->clave)
-            nodo->izq = insertarRec(nodo->izq, clave);
+
+        if (dni < nodo->dni)
+            nodo->izq = insertar(nodo->izq, dni, zona, hora);
+        else if (dni > nodo->dni)
+            nodo->der = insertar(nodo->der, dni, zona, hora);
         else
-            nodo->der = insertarRec(nodo->der, clave);
+            return nodo;
 
-        actualizar(nodo);
-        int b = balance(nodo);
+        actualizarAltura(nodo);
+        int fb = balance(nodo);
 
-        if (b > 1 && clave < nodo->izq->clave)        return rotDer(nodo);
-        if (b < -1 && clave > nodo->der->clave)      return rotIzq(nodo);
-        if (b > 1 && clave > nodo->izq->clave) {
-            nodo->izq = rotIzq(nodo->izq);
-            return rotDer(nodo);
+        if (fb > 1 && dni < nodo->izq->dni)
+            return rotarDer(nodo);
+        if (fb < -1 && dni > nodo->der->dni)
+            return rotarIzq(nodo);
+        if (fb > 1 && dni > nodo->izq->dni) {
+            nodo->izq = rotarIzq(nodo->izq);
+            return rotarDer(nodo);
         }
-        if (b < -1 && clave < nodo->der->clave) {
-            nodo->der = rotDer(nodo->der);
-            return rotIzq(nodo);
+        if (fb < -1 && dni < nodo->der->dni) {
+            nodo->der = rotarDer(nodo->der);
+            return rotarIzq(nodo);
         }
+
         return nodo;
     }
 
-    void inorder(NodoAVL* nodo) {
+    void mostrarInorden(NodoAVL* nodo) {
         if (!nodo) return;
-        inorder(nodo->izq);
-        cout << nodo->clave << ": " << nodo->contador << "\n";
-        inorder(nodo->der);
+        mostrarInorden(nodo->izq);
+        cout << "DNI: " << nodo->dni << ", Zona: " << nodo->zona << ", Hora: " << nodo->hora << endl;
+        mostrarInorden(nodo->der);
+    }
+
+    void mostrarEnFranja(NodoAVL* nodo, const string& hInicio, const string& hFin) {
+        if (!nodo) return;
+        mostrarEnFranja(nodo->izq, hInicio, hFin);
+        if (nodo->hora >= hInicio && nodo->hora <= hFin)
+            cout << "DNI: " << nodo->dni << ", Zona: " << nodo->zona << ", Hora: " << nodo->hora << endl;
+        mostrarEnFranja(nodo->der, hInicio, hFin);
+    }
+
+    void contarZonas(NodoAVL* nodo, string zonas[], int conteo[], int n) {
+        if (!nodo) return;
+        contarZonas(nodo->izq, zonas, conteo, n);
+        for (int i = 0; i < n; ++i) {
+            if (nodo->zona == zonas[i]) {
+                conteo[i]++;
+                break;
+            }
+        }
+        contarZonas(nodo->der, zonas, conteo, n);
     }
 
 public:
-    ArbolAVL() { raiz = nullptr; }
-
-    void insertar(const string& zona, const string& hora) {
-        string clave = zona + "_" + hora;
-        raiz = insertarRec(raiz, clave);
+    ArbolAVL() {
+        raiz = nullptr;
     }
-    
-    //Falta hacer los detalles de esto, tipo si una zona es mayor que otra y eso
+
+    void insertar(const string& zona, const string& hora, int dni = 0) {
+        raiz = insertar(raiz, dni, zona, hora);
+    }
+
     void mostrarEstadisticas() {
-        inorder(raiz);
+        const int N = 5;
+        string zonas[N] = {"Zona Médica", "Zona Preferencial", "Zona A", "Zona B", "Zona C"};
+        int conteo[N] = {0};
+
+        contarZonas(raiz, zonas, conteo, N);
+
+        int maxIdx = 0;
+        for (int i = 1; i < N; i++)
+            if (conteo[i] > conteo[maxIdx]) maxIdx = i;
+
+        if (conteo[maxIdx] > 0)
+            cout << "Zona con más ingresos: " << zonas[maxIdx]
+                 << " (" << conteo[maxIdx] << " personas"<< endl;
+        else
+            cout << "No hay ingresos registrados"<<endl;
     }
 
-    void buscarPorFranjaHoraria(const string& prefijo) {
-        //Falta hacer esto reyes
+    void buscarPorFranjaHoraria(const string& hInicio) {
+        string hFin = hInicio;
+        if (hFin.length() == 5) {
+            if (hFin[3] == '0') hFin[3] = '3';
+            else if (hFin[3] == '3') hFin[3] = '5';
+            else hFin[3] = '9';
+        }
+
+        cout << "--- Ingresos entre " << hInicio << " y " << hFin << " ---\n";
+        mostrarEnFranja(raiz, hInicio, hFin);
     }
 
-    //Falta hacer lo de buscar por zona y hora
-    
-    
+    void mostrarIngresosOrdenados() {
+        cout << "--- Ingresos registrados (ordenados por DNI) ---" << endl;
+        mostrarInorden(raiz);
+    }
 };

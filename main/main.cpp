@@ -8,10 +8,7 @@
 #include "ArbolAVL.cpp"
 using namespace std;
 
-void cargarDesdeTxt(const string& nombreArchivo,
-                    TablaHash& tabla,
-                    MaxHeap& heap,
-                    ArbolAVL& avl) {
+void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap, ArbolAVL& avl) {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         cout << "Error en abrir el archivo: "<<endl;
@@ -27,7 +24,7 @@ void cargarDesdeTxt(const string& nombreArchivo,
         Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
         tabla.insertar(p);
         heap.insertar(p);
-        avl.insertar(zona, hora);
+        avl.insertar(zona, hora, dni);
         correctas++;
     }
 
@@ -73,7 +70,8 @@ int main() {
             tablaUsuarios.insertar(p);
         }
         else if (opc == 2) {
-            int id; cout << "DNI: "; cin >> id;
+            int id; 
+            cout << "DNI: "; cin >> id;
             Persona* p = tablaUsuarios.buscar(id);
             if (!p) cout << "No existe DNI"<<endl;
             else    heapPrioridades.insertar(p);
@@ -83,15 +81,18 @@ int main() {
             if (!p) cout << "Cola vacia" <<endl;
             else {
                 cout << "Ingreso: " << p->nombre << " (" << p->rol << ")"<<endl;
-                string h; cout << "Hora ingreso (HH:MM): "; cin >> h;
-                registroAccesos.insertar(p->zona, h);
+                string h; 
+                cout << "Hora ingreso (HH:MM): "; cin >> h;
+                registroAccesos.insertar(p->zona, h, p->dni);
             }
         }
         else if (opc == 4) {
             heapPrioridades.mostrarTop(5);
         }
         else if (opc == 5) {
-            string h; cout << "Hora (HH:MM): "; cin >> h;
+            string h; 
+            cout << "Hora (HH:MM): "; 
+            cin >> h;
             registroAccesos.buscarPorFranjaHoraria(h);
         }
         else if (opc == 6) {
@@ -102,10 +103,7 @@ int main() {
             cout << "--- Cargar datos desde TXT ---"<<endl;
             cout << "Nombre (con .txt): ";
             getline(cin, archivo);
-            cargarDesdeTxt(archivo,
-                           tablaUsuarios,
-                           heapPrioridades,
-                           registroAccesos);
+            cargarDesdeTxt(archivo, tablaUsuarios, heapPrioridades, registroAccesos);
         }
         else if (opc == 8) break;
         else cout << "Opción inválida" <<endl;
