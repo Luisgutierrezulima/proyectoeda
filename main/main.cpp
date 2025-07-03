@@ -17,19 +17,36 @@ void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap
 
     string nombre, apellido, rol, zona, hora;
     int dni;
-    int correctas = 0, total = 0;
+    int correctas = 0; 
+    int total = 0;
 
-    while (archivo >> nombre >> apellido >> dni >> rol >> zona>> hora) {
+    while (archivo >> nombre >> apellido >> dni >> rol >> zona) {
+        string hora;
+        archivo >> hora;
+        if (hora == "\"\""  || hora.empty()) // Si la hora es vacía o contiene comillas dobles, se considera como no ingresada{
+            hora = ""; // Si la hora es vacía, se asigna una cadena vacía
+        
         total++;
         Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
         tabla.insertar(p);
-        heap.insertar(p);
-        avl.insertar(zona, hora, dni);
         correctas++;
     }
 
     cout << "Datos cargados: "<< correctas << "/" << total<< " registros"<<endl;
 }
+
+void insertarTodosRegistradosAlHeap(TablaHash& tabla, MaxHeap& heap, int tam) {
+    int insertados = 0;
+    for (int i = 0; i < tam; ++i) {
+        Persona* p = tabla.obtenerPos(i);
+        if (p != nullptr && p->horaEntrada == "" && !heap.estaEnCola(p->dni)) {
+            heap.insertar(p);
+            insertados++;
+        }
+    }
+    cout << "Insertados al heap: " << insertados << " personas." << endl;
+}
+
 
 int main() {
     TablaHash tablaUsuarios(1000);
@@ -47,6 +64,7 @@ int main() {
              << "6. Ver estadisticas"<<endl
              << "7. Cargar desde archivo"<<endl
              << "8. Salir"<<endl
+             << "9. Insertar todos al heap"<<endl
              << "Opcion: ";
 
         int opc;
@@ -66,24 +84,34 @@ int main() {
             cout << "Rol (VIP,medico,seguridad,discapacitado): ";               cin >> p->rol;
             //pongale zonas para que "seleccione como en el ROL"
             cout << "Zona: ";              cin >> p->zona;
-            cout << "Hora entrada (HH:MM): "; cin >> p->horaEntrada;
+            p->horaEntrada = ""; // Hora de ingreso se deja vacía inicialmente
             tablaUsuarios.insertar(p);
         }
         else if (opc == 2) {
             int id; 
             cout << "DNI: "; cin >> id;
             Persona* p = tablaUsuarios.buscar(id);
-            if (!p) cout << "No existe DNI"<<endl;
+            if (!p) 
+            cout << "No existe DNI"<<endl;
+            else if (heapPrioridades.estaEnCola(p->dni)) {
+                cout << "Ya esta en la cola de espera." << endl;
+            } 
+            else if (p->horaEntrada != "") {
+                cout << "Ya ingreso a la zona." << endl;
+            } 
+            
             else    heapPrioridades.insertar(p);
         }
         else if (opc == 3) {
             Persona* p = heapPrioridades.extraerMax();
-            if (!p) cout << "Cola vacia" <<endl;
+            if (!p) 
+            cout << "Cola vacia" <<endl;
             else {
                 cout << "Ingreso: " << p->nombre << " (" << p->rol << ")"<<endl;
                 string h; 
                 cout << "Hora ingreso (HH:MM): "; cin >> h;
-                registroAccesos.insertar(p->zona, h, p->dni);
+                p->horaEntrada = h;
+                registroAccesos.insertar(p);
             }
         }
         else if (opc == 4) {
@@ -106,8 +134,15 @@ int main() {
             cargarDesdeTxt(archivo, tablaUsuarios, heapPrioridades, registroAccesos);
         }
         else if (opc == 8) break;
-        else cout << "Opción inválida" <<endl;
-    }
+        else if (opc == 9) {
+            cout << "Insertando todos al heap..." << endl;
+            insertarTodosRegistradosAlHeap(tablaUsuarios, heapPrioridades, 1000);
+        }
+        else {
+            cout << "Opcion no valida."<<endl;
+        }
 
+    }
     return 0;
 }
+    

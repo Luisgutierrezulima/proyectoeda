@@ -37,4 +37,13 @@ public:
         }
         return nullptr;
     }
+
+    Persona* obtenerPos(int i){
+        if (i < 0 || i >= tam) {
+            cout << "Indice fuera de rango." << endl;
+            return nullptr;
+        }
+        return tabla[i];
+    }
+
 };

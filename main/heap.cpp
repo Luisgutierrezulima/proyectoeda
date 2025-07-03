@@ -63,4 +63,12 @@ public:
         for (int i = 1; i <= min(n, ultimo); ++i)
             cout << heap[i]->dni << " - " << heap[i]->rol << endl;
     }
+
+    bool estaEnCola(int dni) {
+        for (int i = 1; i <= ultimo; ++i) {
+            if (heap[i]->dni == dni) 
+            return true;
+        }
+        return false;
+    }
 };

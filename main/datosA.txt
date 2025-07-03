@@ -1,6 +1,6 @@
-Carlos Gonzalez 10001 VIP platinium 18:00
-Ana Martinez 10002 medico occidente 18:05
-Pedro Sanchez 10005 general oriente 18:20
-Luis Rodriguez 10003 seguridad playa 18:10
-Maria Lopez 10004 discapacitado tribunaNorte 18:15
-Elena Gomez 10006 VIP vip 18:25
+Carlos Gonzalez 10001 VIP platinium ""
+Ana Martinez 10002 medico occidente ""
+Pedro Sanchez 10005 general oriente ""
+Luis Rodriguez 10003 seguridad playa ""
+Maria Lopez 10004 discapacitado tribunaNorte ""
+Elena Gomez 10006 VIP vip ""

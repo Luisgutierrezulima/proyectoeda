@@ -61,35 +61,35 @@ private:
         return y;
     }
 
-    NodoAVL* insertar(NodoAVL* nodo, int dni, const string& zona, const string& hora) {
+    NodoAVL* insertar(NodoAVL* nodo, Persona* p) {
         if (!nodo)
-            return new NodoAVL(dni, zona, hora);
+            return new NodoAVL(p->dni, p->zona, p->horaEntrada);
 
-        if (dni == nodo->dni && zona == nodo->zona && hora == nodo->hora) {
-            cout << "El ingreso con DNI " << dni << " ya está registrado en zona "
-                 << zona << " a la hora " << hora << endl;
+        if (p->dni == nodo->dni && p->zona == nodo->zona && p->horaEntrada == nodo->hora) {
+            cout << "El ingreso con DNI " << p->dni << " ya está registrado en zona "
+                 << p->zona << " a la hora " << p->horaEntrada << endl;
             return nodo;
         }
 
-        if (dni < nodo->dni)
-            nodo->izq = insertar(nodo->izq, dni, zona, hora);
-        else if (dni > nodo->dni)
-            nodo->der = insertar(nodo->der, dni, zona, hora);
+        if (p->dni < nodo->dni)
+            nodo->izq = insertar(nodo->izq, p);
+        else if (p->dni > nodo->dni)
+            nodo->der = insertar(nodo->der, p);
         else
             return nodo;
 
         actualizarAltura(nodo);
         int fb = balance(nodo);
 
-        if (fb > 1 && dni < nodo->izq->dni)
+        if (fb > 1 && p->dni < nodo->izq->dni)
             return rotarDer(nodo);
-        if (fb < -1 && dni > nodo->der->dni)
+        if (fb < -1 && p->dni > nodo->der->dni)
             return rotarIzq(nodo);
-        if (fb > 1 && dni > nodo->izq->dni) {
+        if (fb > 1 && p->dni > nodo->izq->dni) {
             nodo->izq = rotarIzq(nodo->izq);
             return rotarDer(nodo);
         }
-        if (fb < -1 && dni < nodo->der->dni) {
+        if (fb < -1 && p->dni < nodo->der->dni) {
             nodo->der = rotarDer(nodo->der);
             return rotarIzq(nodo);
         }
@@ -129,8 +129,12 @@ public:
         raiz = nullptr;
     }
 
-    void insertar(const string& zona, const string& hora, int dni = 0) {
-        raiz = insertar(raiz, dni, zona, hora);
+    void insertar(Persona* p) {
+        if(p->horaEntrada == "") {
+            cout << "Hora de entrada no puede estar vacía." << endl;
+            return;
+        }
+        raiz = insertar(raiz,p);
     }
 
     void mostrarEstadisticas() {
