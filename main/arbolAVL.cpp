@@ -1,216 +1,105 @@
 #include <iostream>
-#include <vector>
+#include "Persona.h"
 using namespace std;
 
-
-class Node {
-private:
-    int dato;
-    int altura;
+struct NodoAVL {
+    string clave;
     int contador;
-    Node* izquierda;
-    Node* derecha;
+    int altura;
+    NodoAVL *izq, *der;
 
-public:
-    Node(int n) : dato(n), altura(1), contador(1), izquierda(nullptr), derecha(nullptr) {}
-
-
-    int getDato() { return dato; }
-    int getAltura() { return altura; }
-    int getContador() { return contador; }
-    Node*& getIzquierda() { return izquierda; }
-    Node*& getDerecha() { return derecha; }
-
-
-    void setDato(int valor) { dato = valor; }
-    void setAltura(int valor) { altura = valor; }
-    void setContador(int valor) { contador = valor; }
-    void setIzquierda(Node* nodo) { izquierda = nodo; }
-    void setDerecha(Node* nodo) { derecha = nodo; }
+    NodoAVL(const string& c) {
+        clave    = c;
+        contador = 1;
+        altura   = 1;
+        izq = der = nullptr;
+    }
 };
 
 class ArbolAVL {
 private:
-    Node* raiz;
+    NodoAVL* raiz;
 
-
-    int altura(Node* nodo) {
-        return nodo ? nodo->getAltura() : 0;
+    int altura(NodoAVL* n) {
+        return n ? n->altura : 0;
     }
 
-
-    int max(int a, int b) {
-        return (a > b) ? a : b;
+    void actualizar(NodoAVL* n) {
+        n->altura = 1 + max(altura(n->izq), altura(n->der));
     }
 
-
-    int factorBalance(Node* nodo) {
-        return nodo ? altura(nodo->getIzquierda()) - altura(nodo->getDerecha()) : 0;
+    int balance(NodoAVL* n) {
+        return n ? altura(n->izq) - altura(n->der) : 0;
     }
 
-
-    void actualizarAltura(Node* nodo) {
-        int alt = 1 + max(altura(nodo->getIzquierda()), altura(nodo->getDerecha()));
-        nodo->setAltura(alt);
+    NodoAVL* rotIzq(NodoAVL* y) {
+        NodoAVL* x = y->der;
+        NodoAVL* t = x->izq;
+        x->izq = y; y->der = t;
+        actualizar(y); actualizar(x);
+        return x;
     }
 
-
-    Node* rotacionIzquierda(Node* actualRaiz) {
-        Node* nuevaRaiz = actualRaiz->getDerecha();
-        Node* subArbol = nuevaRaiz->getIzquierda();
-
-        nuevaRaiz->setIzquierda(actualRaiz);
-        actualRaiz->setDerecha(subArbol);
-
-        actualizarAltura(actualRaiz);
-        actualizarAltura(nuevaRaiz);
-
-        return nuevaRaiz;
+    NodoAVL* rotDer(NodoAVL* x) {
+        NodoAVL* y = x->izq;
+        NodoAVL* t = y->der;
+        y->der = x; x->izq = t;
+        actualizar(x); actualizar(y);
+        return y;
     }
 
-
-    Node* rotacionDerecha(Node* actualRaiz) {
-        Node* nuevaRaiz = actualRaiz->getIzquierda();
-        Node* subArbol = nuevaRaiz->getDerecha();
-
-        nuevaRaiz->setDerecha(actualRaiz);
-        actualRaiz->setIzquierda(subArbol);
-
-        actualizarAltura(actualRaiz);
-        actualizarAltura(nuevaRaiz);
-
-        return nuevaRaiz;
-    }
-
-
-    void insertar(Node*& nodo, int n) {
-        if (nodo == nullptr) {
-            nodo = new Node(n);
-            return;
+    NodoAVL* insertarRec(NodoAVL* nodo, const string& clave) {
+        if (!nodo) return new NodoAVL(clave);
+        if (clave == nodo->clave) {
+            nodo->contador++;
+            return nodo;
         }
-
-        if (n == nodo->getDato()) {
-            nodo->setContador(nodo->getContador() + 1);
-            return;
-        }
-
-        if (n < nodo->getDato()) {
-            insertar(nodo->getIzquierda(), n);
-        } else {
-            insertar(nodo->getDerecha(), n);
-        }
-
-        actualizarAltura(nodo);
-        int balance = factorBalance(nodo);
-
-
-        if (balance > 1 && n < nodo->getIzquierda()->getDato()) {
-            nodo = rotacionDerecha(nodo);
-        }
-
-        else if (balance < -1 && n > nodo->getDerecha()->getDato()) {
-            nodo = rotacionIzquierda(nodo);
-        }
-
-        else if (balance > 1 && n > nodo->getIzquierda()->getDato()) {
-            nodo->setIzquierda(rotacionIzquierda(nodo->getIzquierda()));
-            nodo = rotacionDerecha(nodo);
-        }
-
-        else if (balance < -1 && n < nodo->getDerecha()->getDato()) {
-            nodo->setDerecha(rotacionDerecha(nodo->getDerecha()));
-            nodo = rotacionIzquierda(nodo);
-        }
-    }
-
-    bool buscar(Node* nodo, int n) {
-        if (nodo == nullptr)
-            return false;
-        if (n == nodo->getDato())
-            return true;
-        if (n < nodo->getDato())
-            return buscar(nodo->getIzquierda(), n);
+        if (clave < nodo->clave)
+            nodo->izq = insertarRec(nodo->izq, clave);
         else
-            return buscar(nodo->getDerecha(), n);
+            nodo->der = insertarRec(nodo->der, clave);
+
+        actualizar(nodo);
+        int b = balance(nodo);
+
+        if (b > 1 && clave < nodo->izq->clave)        return rotDer(nodo);
+        if (b < -1 && clave > nodo->der->clave)      return rotIzq(nodo);
+        if (b > 1 && clave > nodo->izq->clave) {
+            nodo->izq = rotIzq(nodo->izq);
+            return rotDer(nodo);
+        }
+        if (b < -1 && clave < nodo->der->clave) {
+            nodo->der = rotDer(nodo->der);
+            return rotIzq(nodo);
+        }
+        return nodo;
     }
 
-
-    void buscarPorFranja(Node* nodo, int h1, int h2, vector<int>& resultados) {
-        if (nodo == nullptr) return;
-
-        int horaActual = nodo->getDato() / 10000;
-
-        if (horaActual >= h1) {
-            buscarPorFranja(nodo->getIzquierda(), h1, h2, resultados);
-        }
-
-        if (horaActual >= h1 && horaActual <= h2) {
-            resultados.push_back(nodo->getDato());
-        }
-
-        if (horaActual <= h2) {
-            buscarPorFranja(nodo->getDerecha(), h1, h2, resultados);
-        }
-    }
-
-
-    void obtenerMayor(Node* nodo, int& maxDato, int& maxContador) {
-        if (nodo == nullptr) return;
-        obtenerMayor(nodo->getIzquierda(), maxDato, maxContador);
-        if (nodo->getContador() > maxContador) {
-            maxDato = nodo->getDato();
-            maxContador = nodo->getContador();
-        }
-        obtenerMayor(nodo->getDerecha(), maxDato, maxContador);
+    void inorder(NodoAVL* nodo) {
+        if (!nodo) return;
+        inorder(nodo->izq);
+        cout << nodo->clave << ": " << nodo->contador << "\n";
+        inorder(nodo->der);
     }
 
 public:
-    ArbolAVL() : raiz(nullptr) {}
+    ArbolAVL() { raiz = nullptr; }
 
-
-    void insertarR(int n) {
-        insertar(raiz, n);
+    void insertar(const string& zona, const string& hora) {
+        string clave = zona + "_" + hora;
+        raiz = insertarRec(raiz, clave);
     }
-
-    // Búsqueda por franja horaria
-    void buscarPorFranjaHoraria(int h1, int h2) {
-        vector<int> resultados;
-        buscarPorFranja(raiz, h1, h2, resultados);
-
-        if (resultados.empty()) {
-            cout << "No se encontraron accesos en esa franja horaria.\n";
-        } else {
-            cout << "Accesos encontrados:\n";
-            for (int clave : resultados) {
-                cout << "- " << decodificarHoraZona(clave) << endl;
-            }
-        }
-    }
-
-
-    int zonaConMasEntradas() {
-        int maxDato = -1;
-        int maxContador = 0;
-        obtenerMayor(raiz, maxDato, maxContador);
-        return maxDato;
-    }
-
-
+    
+    //Falta hacer los detalles de esto, tipo si una zona es mayor que otra y eso
     void mostrarEstadisticas() {
-        int maxDato = zonaConMasEntradas();
-        if (maxDato == -1) {
-            cout << "No hay accesos registrados.\n";
-        } else {
-            cout << "Zona/horario con más accesos: " << decodificarHoraZona(maxDato) << endl;
-        }
+        inorder(raiz);
     }
 
-    string decodificarHoraZona(int codificado) {
-        int horaCodigo = codificado / 10000;
-        int hh = horaCodigo / 100;
-        int mm = horaCodigo % 100;
-        char buffer[6];
-        snprintf(buffer, sizeof(buffer), "%02d:%02d", hh, mm);
-        return string(buffer);
+    void buscarPorFranjaHoraria(const string& prefijo) {
+        //Falta hacer esto reyes
     }
+
+    //Falta hacer lo de buscar por zona y hora
+    
+    
 };

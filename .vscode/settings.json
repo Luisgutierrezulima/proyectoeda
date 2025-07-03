@@ -59,6 +59,7 @@
   "files.associations": {
     "*.mermaid": "bat",
     "iosfwd": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "ostream": "cpp"
   }
 }

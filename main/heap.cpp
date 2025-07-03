@@ -1,100 +1,66 @@
-
 #include <iostream>
+#include "Persona.h"
 using namespace std;
+
+int obtenerPrioridad(const string& rol) {
+    if (rol == "VIP")          return 5;
+    if (rol == "medico")       return 4;
+    if (rol == "seguridad")    return 3;
+    if (rol == "discapacitado")return 2;
+    return 1;
+}
 
 class MaxHeap {
 private:
-    pair<int, int>* heap;
+    Persona** heap;
     int tam;
-    int ultimaPosicion;
+    int ultimo;
 
-    void swap(pair<int, int>& a, pair<int, int>& b) {
-        pair<int, int> temp = a;
-        a = b;
-        b = temp;
-    }
-
-    int buscarIndice(int id) {
-        for (int i = 1; i <= ultimaPosicion; i++) {
-            if (heap[i].second == id)
-                return i;
-        }
-        return -1;
+    void intercambiar(int i, int j) {
+        Persona* tmp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = tmp;
     }
 
 public:
-    MaxHeap(int n) {
-        heap = new pair<int, int>[n + 1]; // +1 para evitar acceso fuera de índice 0
-        tam = n + 1;
-        ultimaPosicion = 0;
+    MaxHeap(int capacidad) {
+        tam    = capacidad;
+        ultimo = 0;
+        heap   = new Persona*[tam + 1];
     }
 
-    void insertar(int id, int prioridad) {
-        if (ultimaPosicion + 1 >= tam) {
-            cout << "Heap lleno. No se puede insertar más elementos." << endl;
+    void insertar(Persona* p) {
+        if (ultimo + 1 >= tam) {
+            cout << "Cola llena" <<endl;
             return;
         }
-        ultimaPosicion++;
-        heap[ultimaPosicion] = {prioridad, id};
-        int i = ultimaPosicion;
-        while (i > 1 && heap[i].first > heap[i / 2].first) {
-            swap(heap[i], heap[i / 2]);
-            i = i / 2;
+        heap[++ultimo] = p;
+        int i = ultimo;
+        while (i > 1 && obtenerPrioridad(heap[i]->rol) > obtenerPrioridad(heap[i/2]->rol)) {
+            intercambiar(i, i/2);
+            i /= 2;
         }
     }
 
-    int extraerMax() {
-        if (ultimaPosicion == 0)
-            return -1;
-        int idMax = heap[1].second;
-        heap[1] = heap[ultimaPosicion--];
+    Persona* extraerMax() {
+        if (ultimo == 0) return nullptr;
+        Persona* top = heap[1];
+        heap[1] = heap[ultimo--];
         int i = 1;
-        while (true) {
-            int left = i * 2, right = i * 2 + 1, largest = i;
-            if (left <= ultimaPosicion && heap[left].first > heap[largest].first)
-                largest = left;
-            if (right <= ultimaPosicion && heap[right].first > heap[largest].first)
-                largest = right;
-            if (largest != i) {
-                swap(heap[i], heap[largest]);
-                i = largest;
-            } else break;
+        while (2*i <= ultimo) {
+            int h = 2*i;
+            if (h+1 <= ultimo && obtenerPrioridad(heap[h+1]->rol) > obtenerPrioridad(heap[h]->rol))
+                ++h;
+            if (obtenerPrioridad(heap[i]->rol) >= obtenerPrioridad(heap[h]->rol)) break;
+            intercambiar(i, h);
+            i = h;
         }
-        return idMax;
-    }
-
-    void actualizarPrioridad(int id, int nuevaPrioridad) {
-        int idx = buscarIndice(id);
-        if (idx == -1) {
-            cout << "ID no encontrado en el heap." << endl;
-            return;
-        }
-        int viejaPrioridad = heap[idx].first;
-        heap[idx].first = nuevaPrioridad;
-
-        if (nuevaPrioridad > viejaPrioridad) {
-            while (idx > 1 && heap[idx].first > heap[idx / 2].first) {
-                swap(heap[idx], heap[idx / 2]);
-                idx /= 2;
-            }
-        } else {
-            while (true) {
-                int left = idx * 2, right = idx * 2 + 1, largest = idx;
-                if (left <= ultimaPosicion && heap[left].first > heap[largest].first)
-                    largest = left;
-                if (right <= ultimaPosicion && heap[right].first > heap[largest].first)
-                    largest = right;
-                if (largest != idx) {
-                    swap(heap[idx], heap[largest]);
-                    idx = largest;
-                } else break;
-            }
-        }
+        return top;
     }
 
     void mostrarTop(int n) {
-        for (int i = 1; i <= ultimaPosicion && i <= n; i++) {
-            cout << i << ". ID: " << heap[i].second << " (prioridad " << heap[i].first << ")" << endl;
-        }
+        cout << "Proximos " << n << " en cola: "<<endl;
+        for (int i = 1; i <= min(n, ultimo); ++i)
+            cout << heap[i]->dni << " - " << heap[i]->rol << endl;
     }
 };

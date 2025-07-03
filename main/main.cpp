@@ -1,255 +1,123 @@
 //VERIFIQUEN o cambien si lo ven necesario luises
 
-
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <limits>
+#include "Persona.h"
+#include "tablaHash.cpp"
+#include "Heap.cpp"
+#include "ArbolAVL.cpp"
 using namespace std;
 
-#include "tablaHash.cpp"
-#include "heap.cpp"
-#include "arbolAVL.cpp"
-
-
-int obtenerPrioridad(const string& rol) {
-    if (rol == "VIP") return 5;        // Máxima prioridad
-    if (rol == "medico") return 4;     // Alta prioridad
-    if (rol == "seguridad") return 3;  // Prioridad media
-    if (rol == "discapacitado") return 2; // Prioridad especial
-    return 1; // Prioridad general (mínima)
-}
-
-int codificarHoraZona(const string& hora, const string& zona) {
-    return stoi(hora.substr(0, 2) + hora.substr(3, 2)) + zona.length() * 10000;
-}
-
-
-string decodificarHoraZona(int codificado) {
-    int horaCodigo = codificado / 10000;
-    int hh = horaCodigo / 100;
-    int mm = horaCodigo % 100;
-    char buffer[6];
-    snprintf(buffer, sizeof(buffer), "%02d:%02d", hh, mm);
-    return string(buffer);
-}
-
-void limpiarEntrada() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
-
-void cargarDesdeArchivo(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap, ArbolAVL& avl) {
+void cargarDesdeTxt(const string& nombreArchivo,
+                    TablaHash& tabla,
+                    MaxHeap& heap,
+                    ArbolAVL& avl) {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
-        cout << "Error al abrir archivo: " << nombreArchivo << endl;
+        cout << "Error en abrir el archivo: "<<endl;
         return;
     }
 
-    string linea;
+    string nombre, apellido, dni, rol, zona, hora;
     int correctas = 0, total = 0;
 
-    // Procesar cada línea del archivo
-    while (getline(archivo, linea)) {
+    while (archivo >> nombre
+                   >> apellido
+                   >> dni
+                   >> rol
+                   >> zona
+                   >> hora) {
         total++;
-        stringstream ss(linea);
-        vector<string> partes;
-        string parte;
-
-        // Dividir por comas
-        while (getline(ss, parte, ',')) {
-            partes.push_back(parte);
-        }
-
-        // Validar formato
-        if (partes.size() != 4) continue;
-
-        try {
-            int id = stoi(partes[0]);
-            string rol = partes[1];
-            string zona = partes[2];
-            string horaProgramada = partes[3];
-
-            // Almacenar en todas las estructuras
-            tabla.insertar(id, rol, zona, horaProgramada);
-            heap.insertar(id, obtenerPrioridad(rol));
-            correctas++;
-        } catch (...) {
-            continue;
-        }
+        Persona* p = new Persona{nombre,
+                                 apellido,
+                                 dni,
+                                 rol,
+                                 zona,
+                                 hora};
+        tabla.insertar(p);
+        heap.insertar(p);
+        avl.insertar(zona, hora);
+        correctas++;
     }
-    cout << "Datos cargados: " << correctas << "/" << total << " registros\n";
+
+    cout << "Datos cargados: "<< correctas << "/" << total<< " registros"<<endl;
 }
 
 int main() {
-
-    TablaHash tablaUsuarios(100);
-    MaxHeap heapPrioridades(10000);
+    TablaHash tablaUsuarios(1000);
+    MaxHeap heapPrioridades(500);
     ArbolAVL registroAccesos;
+    
 
     while (true) {
-        // Menú principal
-        cout << "\n=== SISTEMA DE CONTROL DE ACCESOS ===" << endl;
-        cout << "1. Registrar nuevo asistente" << endl;
-        cout << "2. Agregar a cola de acceso" << endl;
-        cout << "3. Procesar ingreso" << endl;
-        cout << "4. Mostrar siguientes en cola" << endl;
-        cout << "5. Consultar accesos por hora" << endl;
-        cout << "6. Actualizar prioridad" << endl;
-        cout << "7. Estadísticas de acceso" << endl;
-        cout << "8. Cargar datos desde archivo" << endl;
-        cout << "9. Salir" << endl;
-        cout << "Seleccione opción: ";
+        cout << "=== MENU ACCESOS ===" <<endl 
+             << "1. Registrar asistente" <<endl
+             << "2. Agregar a cola"<<endl
+             << "3. Procesar ingreso"<<endl
+             << "4. Ver proximos en cola"<<endl
+             << "5. Consultar por hora"<<endl
+             << "6. Ver estadisticas"<<endl
+             << "7. Cargar desde archivo"<<endl
+             << "8. Salir"<<endl
+             << "Opcion: ";
 
-        int opcion;
-        if (!(cin >> opcion)) {
-            limpiarEntrada();
-            continue;
+        int opc;
+        if (!(cin >> opc)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Entrada no valida."<<endl;
+        continue;
         }
-        limpiarEntrada();
+        cin.ignore();
 
-
-        if (opcion == 1) {
-            int id;
-            string rol, zona, horaProgramada;
-
-            cout << "\n--- Registro de nuevo asistente ---" << endl;
-            cout << "DNI/QR (puede ser negativo): ";
-            cin >> id;
-            cout << "Rol (VIP/medico/seguridad/discapacitado/general): ";
-            cin >> rol;
-            cout << "Zona asignada: ";
-            cin >> zona;
-            cout << "Hora de entrada programada (HH:MM): ";
-            cin >> horaProgramada;
-
-
-            tablaUsuarios.insertar(id, rol, zona, horaProgramada);
-            cout << "Asistente registrado exitosamente.\n";
+        if (opc == 1) {
+            auto* p = new Persona;
+            cout << "Nombre: ";            cin >> p->nombre;
+            cout << "Apellido: ";          cin >> p->apellido;
+            cout << "DNI: ";               cin >> p->dni;
+            cout << "Rol (VIP,medico,seguridad,discapacitado): ";               cin >> p->rol;
+            //pongale zonas para que "seleccione como en el ROL"
+            cout << "Zona: ";              cin >> p->zona;
+            cout << "Hora entrada (HH:MM): "; cin >> p->horaEntrada;
+            tablaUsuarios.insertar(p);
         }
-
-        else if (opcion == 2) {
-            int id;
-            cout << "\n--- Agregar a cola de acceso ---" << endl;
-            cout << "DNI/QR a agregar: ";
-            cin >> id;
-
-            // Buscar persona en tabla hash
+        else if (opc == 2) {
+            string id; cout << "DNI: "; cin >> id;
             Persona* p = tablaUsuarios.buscar(id);
-            if (!p) {
-                cout << "Error: ID no registrado.\n";
-                continue;
-            }
-
-
-            heapPrioridades.insertar(id, obtenerPrioridad(p->rol));
-            cout << "Agregado a cola como " << p->rol << " (Prioridad: "
-                 << obtenerPrioridad(p->rol) << ")\n";
+            if (!p) cout << "No existe DNI"<<endl;
+            else    heapPrioridades.insertar(p);
         }
-
-        else if (opcion == 3) {
-            cout << "\n--- Procesar ingreso ---" << endl;
-
-
-            int id = heapPrioridades.extraerMax();
-            if (id == -1) {
-                cout << "No hay personas en cola.\n";
-                continue;
+        else if (opc == 3) {
+            Persona* p = heapPrioridades.extraerMax();
+            if (!p) cout << "Cola vacia" <<endl;
+            else {
+                cout << "Ingreso: " << p->nombre << " (" << p->rol << ")"<<endl;
+                string h; cout << "Hora ingreso (HH:MM): "; cin >> h;
+                registroAccesos.insertar(p->zona, h);
             }
-
-
-            Persona* p = tablaUsuarios.buscar(id);
-            if (!p) {
-                cout << "Error: ID no encontrado en registros.\n";
-                continue;
-            }
-
-            cout << "ID: " << id << " | Rol: " << p->rol << endl;
-            cout << "Zona asignada: " << p->zona << endl;
-            cout << "Hora programada: " << p->horaEntrada << endl;
-
-
-            string horaAcceso;
-            cout << "Ingrese hora de acceso (HH:MM): ";
-            cin >> horaAcceso;
-
-
-            if (horaAcceso < p->horaEntrada) {
-                cout << "¡ADVERTENCIA! Intento de acceso ANTES de la hora programada.\n";
-                cout << "El asistente se mantendrá en la cola.\n";
-                heapPrioridades.insertar(id, obtenerPrioridad(p->rol));
-                continue;
-            }
-
-
-    registroAccesos.insertarR(stoi(horaAcceso.substr(0, 2) + horaAcceso.substr(3, 2)) + p->zona.length() * 10000);
-    cout << "Acceso registrado correctamente.\n";
-}
-
-        else if (opcion == 4) {
-            cout << "\n--- Próximos en cola ---" << endl;
+        }
+        else if (opc == 4) {
             heapPrioridades.mostrarTop(5);
         }
-
-
-        else if (opcion == 5) {
-            string hora;
-            cout << "\n--- Consulta de accesos ---" << endl;
-            cout << "Ingrese hora a consultar (HH:MM): ";
-            cin >> hora;
-
-
-            int codigoHora = stoi(hora.substr(0, 2)) * 100 + stoi(hora.substr(3, 2));
-            cout << "Accesos registrados a las " << hora << ":\n";
-
-
-            registroAccesos.buscarPorFranjaHoraria(codigoHora * 10000, (codigoHora + 1) * 10000);
+        else if (opc == 5) {
+            string h; cout << "Hora (HH:MM): "; cin >> h;
+            registroAccesos.buscarPorFranjaHoraria(h);
         }
-
-        else if (opcion == 6) {
-            int id;
-            string nuevoRol;
-            cout << "\n--- Actualizar prioridad ---" << endl;
-            cout << "ID a actualizar: ";
-            cin >> id;
-            cout << "Nuevo rol: ";
-            cin >> nuevoRol;
-
-            Persona* p = tablaUsuarios.buscar(id);
-            if (p) {
-
-                p->rol = nuevoRol;
-
-
-                heapPrioridades.actualizarPrioridad(id, obtenerPrioridad(nuevoRol));
-                cout << "Prioridad actualizada a " << obtenerPrioridad(nuevoRol) << endl;
-            } else {
-                cout << "ID no encontrado.\n";
-            }
-        }
-
-        else if (opcion == 7) {
-            cout << "\n--- Estadísticas de acceso ---" << endl;
+        else if (opc == 6) {
             registroAccesos.mostrarEstadisticas();
         }
-
-        else if (opcion == 8) {
-            string archivo;
-            cout << "\n--- Cargar datos ---" << endl;
-            cout << "Nombre del archivo: ";
-            cin >> archivo;
-            cargarDesdeArchivo(archivo, tablaUsuarios, heapPrioridades, registroAccesos);
+        else if (opc == 7){
+                    string archivo;
+            cout << "--- Cargar datos desde TXT ---"<<endl;
+            cout << "Nombre (con .txt): ";
+            getline(cin, archivo);
+            cargarDesdeTxt(archivo,
+                           tablaUsuarios,
+                           heapPrioridades,
+                           registroAccesos);
         }
-
-        else if (opcion == 9) {
-            cout << "Saliendo del sistema...\n";
-            break;
-        }
-        else {
-            cout << "Opción no válida.\n";
-        }
+        else if (opc == 8) break;
+        else cout << "Opción inválida" <<endl;
     }
 
     return 0;
