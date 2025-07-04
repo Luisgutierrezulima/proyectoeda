@@ -52,4 +52,32 @@ public:
         return tabla[i];
     }
 
+
+    void rehash() {
+    int nuevoTam = tam * 2;
+    Persona** nuevaTabla = new Persona*[nuevoTam];
+    for (int i = 0; i < nuevoTam; i++) nuevaTabla[i] = nullptr;
+
+    for (int i = 0; i < tam; i++) {
+        if (tabla[i] != nullptr) {
+            int nuevaPos = abs(tabla[i]->dni % nuevoTam);
+            while (nuevaTabla[nuevaPos] != nullptr)
+                nuevaPos = (nuevaPos + 1) % nuevoTam;
+            nuevaTabla[nuevaPos] = tabla[i];
+        }
+    }
+
+    delete[] tabla;
+    tabla = nuevaTabla;
+    tam = nuevoTam;
+}
+
+
+
+
+
+
+
+
+
 };
