@@ -3,22 +3,36 @@
 using namespace std;
 
 class NodoAVL {
-public:
-    int dni;
-    string zona;
-    string hora;
-    int altura;
-    NodoAVL* izq;
-    NodoAVL* der;
+    private:
+        int dni;
+        string zona;
+        string hora;
+        int altura;
+        NodoAVL* izq;
+        NodoAVL* der;
 
-    NodoAVL(int dni, const string& zona, const string& hora) {
-        this->dni = dni;
-        this->zona = zona;
-        this->hora = hora;
-        this->altura = 1;
-        this->izq = nullptr;
-        this->der = nullptr;
-    }
+    public:
+        NodoAVL(int dni, const string& zona, const string& hora) {
+            this->dni = dni;
+            this->zona = zona;
+            this->hora = hora;
+            this->altura = 1;
+            this->izq = nullptr;
+            this->der = nullptr;
+        }
+
+        int getDni() { return dni; }
+        int getAltura() { return altura; }
+        string getZona() { return zona; }
+        string getHora() { return hora; }
+        NodoAVL* getIzquierda() { return izq; }
+        NodoAVL* getDerecha() { return der; }
+        void setDato(int valor) { dni = valor; }
+        void setAltura(int valor) { altura = valor; }
+        void setZona(const string& zona) { this->zona = zona; }
+        void setHora(const string& hora) { this->hora = hora; }
+        void setIzquierda(NodoAVL* nodo) { izq= nodo; }
+        void setDerecha(NodoAVL* nodo) { der = nodo; }
 };
 
 class ArbolAVL {
@@ -26,35 +40,41 @@ private:
     NodoAVL* raiz;
 
     int altura(NodoAVL* nodo) {
-        return nodo ? nodo->altura : 0;
+        return nodo ? nodo->getAltura() : 0;
     }
 
     int balance(NodoAVL* nodo) {
-        return nodo ? altura(nodo->izq) - altura(nodo->der) : 0;
+        return nodo ? altura(nodo->getIzquierda()) - altura(nodo->getDerecha()) : 0;
     }
 
     void actualizarAltura(NodoAVL* nodo) {
-        nodo->altura = 1 + max(altura(nodo->izq), altura(nodo->der));
+        nodo->setAltura(1 + max(altura(nodo->getIzquierda()), altura(nodo->getDerecha())));
     }
 
+    //x = Nueva raiz
+    //y = actual raiz
+    //t2 = subArbol
     NodoAVL* rotarIzq(NodoAVL* y) {
-        NodoAVL* x = y->der;
-        NodoAVL* t2 = x->izq;
+        NodoAVL* x = y->getDerecha();
+        NodoAVL* t2 = x->getIzquierda();
 
-        x->izq = y;
-        y->der = t2;
+        x->setIzquierda(y);
+        y->setDerecha(t2);
 
         actualizarAltura(y);
         actualizarAltura(x);
         return x;
     }
 
+    //x = actual raiz
+    //y = Nueva raiz
+    //t2 = subArbol
     NodoAVL* rotarDer(NodoAVL* x) {
-        NodoAVL* y = x->izq;
-        NodoAVL* t2 = y->der;
+        NodoAVL* y = x->getIzquierda();
+        NodoAVL* t2 = y->getDerecha();
 
-        y->der = x;
-        x->izq = t2;
+        y->setDerecha(x);
+        x->setIzquierda(t2);
 
         actualizarAltura(x);
         actualizarAltura(y);
@@ -65,32 +85,32 @@ private:
         if (!nodo)
             return new NodoAVL(p->dni, p->zona, p->horaEntrada);
 
-        if (p->dni == nodo->dni && p->zona == nodo->zona && p->horaEntrada == nodo->hora) {
+        if (p->dni == nodo->getDni() && p->zona == nodo->getZona() && p->horaEntrada == nodo->getHora()) {
             cout << "El ingreso con DNI " << p->dni << " ya está registrado en zona "
                  << p->zona << " a la hora " << p->horaEntrada << endl;
             return nodo;
         }
 
-        if (p->dni < nodo->dni)
-            nodo->izq = insertar(nodo->izq, p);
-        else if (p->dni > nodo->dni)
-            nodo->der = insertar(nodo->der, p);
+        if (p->dni < nodo->getDni())
+            nodo->setIzquierda(insertar(nodo->getIzquierda(), p));
+        else if (p->dni > nodo->getDni())
+            nodo->setDerecha(insertar(nodo->getDerecha(), p));
         else
             return nodo;
 
         actualizarAltura(nodo);
         int fb = balance(nodo);
 
-        if (fb > 1 && p->dni < nodo->izq->dni)
+        if (fb > 1 && p->dni < nodo->getIzquierda()->getDni())
             return rotarDer(nodo);
-        if (fb < -1 && p->dni > nodo->der->dni)
+        if (fb < -1 && p->dni > nodo->getDerecha()->getDni())
             return rotarIzq(nodo);
-        if (fb > 1 && p->dni > nodo->izq->dni) {
-            nodo->izq = rotarIzq(nodo->izq);
+        if (fb > 1 && p->dni > nodo->getIzquierda()->getDni()) {
+            nodo->setIzquierda(rotarIzq(nodo->getIzquierda()));
             return rotarDer(nodo);
         }
-        if (fb < -1 && p->dni < nodo->der->dni) {
-            nodo->der = rotarDer(nodo->der);
+        if (fb < -1 && p->dni < nodo->getDerecha()->getDni()) {
+            nodo->setDerecha(rotarDer(nodo->getDerecha()));
             return rotarIzq(nodo);
         }
 
@@ -99,29 +119,29 @@ private:
 
     void mostrarInorden(NodoAVL* nodo) {
         if (!nodo) return;
-        mostrarInorden(nodo->izq);
-        cout << "DNI: " << nodo->dni << ", Zona: " << nodo->zona << ", Hora: " << nodo->hora << endl;
-        mostrarInorden(nodo->der);
+        mostrarInorden(nodo->getIzquierda());
+        cout << "DNI: " << nodo->getDni() << ", Zona: " << nodo->getZona() << ", Hora: " << nodo->getHora() << endl;
+        mostrarInorden(nodo->getDerecha());
     }
 
     void mostrarEnFranja(NodoAVL* nodo, const string& hInicio, const string& hFin) {
         if (!nodo) return;
-        mostrarEnFranja(nodo->izq, hInicio, hFin);
-        if (nodo->hora >= hInicio && nodo->hora <= hFin)
-            cout << "DNI: " << nodo->dni << ", Zona: " << nodo->zona << ", Hora: " << nodo->hora << endl;
-        mostrarEnFranja(nodo->der, hInicio, hFin);
+        mostrarEnFranja(nodo->getIzquierda(), hInicio, hFin);
+        if (nodo->getHora() >= hInicio && nodo->getHora() <= hFin)
+            cout << "DNI: " << nodo->getDni() << ", Zona: " << nodo->getZona() << ", Hora: " << nodo->getHora() << endl;
+        mostrarEnFranja(nodo->getDerecha(), hInicio, hFin);
     }
 
     void contarZonas(NodoAVL* nodo, string zonas[], int conteo[], int n) {
         if (!nodo) return;
-        contarZonas(nodo->izq, zonas, conteo, n);
+        contarZonas(nodo->getIzquierda(), zonas, conteo, n);
         for (int i = 0; i < n; ++i) {
-            if (nodo->zona == zonas[i]) {
+            if (nodo->getZona() == zonas[i]) {
                 conteo[i]++;
                 break;
             }
         }
-        contarZonas(nodo->der, zonas, conteo, n);
+        contarZonas(nodo->getDerecha(), zonas, conteo, n);
     }
 
 public:
