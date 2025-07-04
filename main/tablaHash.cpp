@@ -22,9 +22,10 @@ public:
     void insertar(Persona* p) {
         int pos = funcionHash(p->dni);
         int intentos = 0;
-        while (tabla[pos] != nullptr && intentos < tam)
+        while (tabla[pos] != nullptr && intentos < tam) {
             pos = (pos + 1) % tam;
             intentos++;
+        }
         if (intentos < tam) {
             tabla[pos] = p;
         } else {

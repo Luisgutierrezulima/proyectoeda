@@ -8,7 +8,7 @@
 #include "ArbolAVL.cpp"
 using namespace std;
 
-void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap, ArbolAVL& avl) {
+void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla) {
     ifstream archivo(nombreArchivo);
     if (!archivo.is_open()) {
         cout << "Error en abrir el archivo: "<<endl;
@@ -23,8 +23,10 @@ void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap
     while (archivo >> nombre >> apellido >> dni >> rol >> zona) {
         string hora;
         archivo >> hora;
-        if (hora == "\"\""  || hora.empty()) // Si la hora es vacía o contiene comillas dobles, se considera como no ingresada{
+        // Si la hora es vacía o contiene comillas dobles, se considera como no ingresada
+        if (hora == "\"\""  || hora.empty()) {
             hora = ""; // Si la hora es vacía, se asigna una cadena vacía
+        }
         
         total++;
         Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
@@ -147,7 +149,7 @@ int main() {
             cout << "--- Cargar datos desde TXT ---"<<endl;
             cout << "Nombre (con .txt): ";
             getline(cin, archivo);
-            cargarDesdeTxt(archivo, tablaUsuarios, heapPrioridades, registroAccesos);
+            cargarDesdeTxt(archivo, tablaUsuarios);
         }
         else if (opc == 8) break;
         else if (opc == 9) {
