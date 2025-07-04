@@ -159,7 +159,7 @@ public:
 
     void mostrarEstadisticas() {
         const int N = 5;
-        string zonas[N] = {"Zona Médica", "Zona Preferencial", "Zona A", "Zona B", "Zona C"};
+        string zonas[N] = {"Zona1", "Zona2", "Zona3", "Zona4", "Zona5"};
         int conteo[N] = {0};
 
         contarZonas(raiz, zonas, conteo, N);

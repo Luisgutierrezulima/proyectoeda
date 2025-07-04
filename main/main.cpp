@@ -35,22 +35,38 @@ void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap
     cout << "Datos cargados: "<< correctas << "/" << total<< " registros"<<endl;
 }
 
-void insertarTodosRegistradosAlHeap(TablaHash& tabla, MaxHeap& heap, int tam) {
+void insertarAlHeap(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap) {
+
+    ifstream archivo(nombreArchivo);
+    if (!archivo.is_open()) {   
+        cout << "Error al abrir el archivo: " << endl;
+        return;
+    }
+    
+    int dni;
     int insertados = 0;
-    for (int i = 0; i < tam; ++i) {
-        Persona* p = tabla.obtenerPos(i);
-        if (p != nullptr && p->horaEntrada == "" && !heap.estaEnCola(p->dni)) {
-            heap.insertar(p);
-            insertados++;
+    int YaEstanEnCola = 0;
+    int total = 0;
+    while (archivo >> dni) {
+        total++;
+        Persona* p = tabla.buscar(dni);
+        if (p) {
+            if (!heap.estaEnCola(p->dni)) {
+                heap.insertar(p);
+                insertados++;
+            } else {
+                YaEstanEnCola++;
+            }
         }
     }
-    cout << "Insertados al heap: " << insertados << " personas." << endl;
+    cout << "Insertados al heap: " << insertados << " de "<<total<<" personas." << endl;
+    cout << "Ya estaban en la cola: " << YaEstanEnCola << endl;
 }
 
 
 int main() {
-    TablaHash tablaUsuarios(1000);
-    MaxHeap heapPrioridades(500);
+    TablaHash tablaUsuarios(50000);
+    MaxHeap heapPrioridades(50000);
     ArbolAVL registroAccesos;
     
 
@@ -64,7 +80,7 @@ int main() {
              << "6. Ver estadisticas"<<endl
              << "7. Cargar desde archivo"<<endl
              << "8. Salir"<<endl
-             << "9. Insertar todos al heap"<<endl
+             << "9. Iniciar Cola desde archivo"<<endl
              << "Opcion: ";
 
         int opc;
@@ -80,7 +96,7 @@ int main() {
             auto* p = new Persona;
             cout << "Nombre: ";            cin >> p->nombre;
             cout << "Apellido: ";          cin >> p->apellido;
-            cout << "DNI: ";               cin >> p->dni;
+            cout << "DNI (Zona1, Zona2, Zona3, Zona4, Zona5): ";               cin >> p->dni;
             cout << "Rol (VIP,medico,seguridad,discapacitado): ";               cin >> p->rol;
             //pongale zonas para que "seleccione como en el ROL"
             cout << "Zona: ";              cin >> p->zona;
@@ -135,8 +151,11 @@ int main() {
         }
         else if (opc == 8) break;
         else if (opc == 9) {
-            cout << "Insertando todos al heap..." << endl;
-            insertarTodosRegistradosAlHeap(tablaUsuarios, heapPrioridades, 1000);
+            string archivo;
+            cout << "Insertando al heap..." << endl;
+            cout << "Nombre del archivo (con .txt): ";
+            getline(cin, archivo);
+            insertarAlHeap(archivo, tablaUsuarios, heapPrioridades);
         }
         else {
             cout << "Opcion no valida."<<endl;
