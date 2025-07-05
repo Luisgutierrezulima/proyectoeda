@@ -21,7 +21,6 @@ AVL o Red-Black Tree
 manejar repeticiones de los dnis (ya esta)
 verificaciones 
 arbol avl
-validacion
 rehashing
 
 
