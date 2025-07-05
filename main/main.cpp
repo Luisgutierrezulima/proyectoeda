@@ -29,9 +29,13 @@ void cargarDesdeTxt(const string& nombreArchivo, TablaHash& tabla) {
         }
         
         total++;
-        Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
-        tabla.insertar(p);
-        correctas++;
+        if (tabla.buscar(dni) == nullptr) { // Validar que no exista el DNI
+            Persona* p = new Persona{nombre, apellido, dni, rol, zona, hora};
+            tabla.insertar(p);
+            correctas++;
+        } else {
+            cout << "DNI repetido (" << dni << "), no insertado." << endl;
+        }
     }
 
     cout << "Datos cargados: "<< correctas << "/" << total<< " registros"<<endl;

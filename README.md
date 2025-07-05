@@ -18,7 +18,7 @@ AVL o Red-Black Tree
 
 
 -- falta:
-manejar repeticiones de los dnis
+manejar repeticiones de los dnis (ya esta)
 verificaciones 
 arbol avl
 validacion
