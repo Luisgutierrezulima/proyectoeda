@@ -70,14 +70,16 @@ void insertarAlHeap(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap
 }
 
 void insertarDesdeHeapAlAVL(MaxHeap& heap, ArbolAVL& arbol) {
-    Persona* p = heap.extraerMax(); 
-    if (!p) {
-        cout << "Cola vacía, no hay personas para ingresar al árbol." << endl;
-        return;
-    } else {
-        arbol.insertar(p->dni);
-        cout << "DNI: " << p->dni << "  Hora: " << p->horaEntrada << "." << endl;
-        p->setHora(); 
+    while (!heap.estaVacio()) {
+        Persona* p = heap.extraerMax(); 
+        if (!p) {
+            cout << "Cola vacia, no hay personas para ingresar al árbol." << endl;
+            return;
+        } else {
+            p->setHora(); 
+            arbol.insertar(p->dni); //Que se pueda mostrar las estadisticas en el AVL(opcion 6)
+            cout << "DNI: " << p->dni << "  Hora: " << p->horaEntrada << "." << endl;
+        }
     }
 }
 
@@ -135,7 +137,7 @@ int main() {
             else    heapPrioridades.insertar(p);
         }
         else if (opc == 3) {
-            /*
+           /*
             Persona* p = heapPrioridades.extraerMax();
             if (!p) 
             cout << "Cola vacia" <<endl;
@@ -146,7 +148,8 @@ int main() {
                 p->horaEntrada = h;
                 registroAccesos.insertar(p);
             }
-            */
+          */
+
            insertarDesdeHeapAlAVL(heapPrioridades, registroAccesos);
         }
         else if (opc == 4) {

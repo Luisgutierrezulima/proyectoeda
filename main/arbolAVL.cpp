@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Persona.h"
+#include "Heap.cpp"
 using namespace std;
 
 class NodoAVL {
@@ -80,7 +81,6 @@ class ArbolAVL {
             actualizarAltura(y);
             return y;
         }
-        /*
         
         NodoAVL* insertar(NodoAVL* nodo, Persona* p) {
             if (!nodo)
@@ -117,10 +117,8 @@ class ArbolAVL {
 
             return nodo;
         }
-        */
-        private:
-    // ...otros métodos...
-
+    
+        
         NodoAVL* insertar(NodoAVL* nodo, int dni, const string& zona, const string& hora) {
             if (!nodo)
                 return new NodoAVL(dni, zona, hora);
@@ -183,13 +181,13 @@ class ArbolAVL {
         ArbolAVL() {
             raiz = nullptr;
         }
-
+      
         void insertar(int dni) {
             // Puedes dejar zona y hora vacías o con valores por defecto
             raiz = insertar(raiz, dni, "", "");
         }
-
-        /*
+       
+        
         void insertar(Persona* p) {
             if(p->horaEntrada == "") {
                 cout << "Hora de entrada no puede estar vacía." << endl;
@@ -197,8 +195,8 @@ class ArbolAVL {
             }
             raiz = insertar(raiz,p);
         }
-        */
-
+        
+        
         void mostrarEstadisticas() {
             const int N = 5;
             string zonas[N] = {"Zona1", "Zona2", "Zona3", "Zona4", "Zona5"};
@@ -216,6 +214,7 @@ class ArbolAVL {
             else
                 cout << "No hay ingresos registrados"<<endl;
         }
+        
 
         void buscarPorFranjaHoraria(const string& hInicio) {
             string hFin = hInicio;

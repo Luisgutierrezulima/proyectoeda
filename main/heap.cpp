@@ -16,6 +16,10 @@ class MaxHeap {
         int tam;
         int ultimo;
 
+        int getUltimo() const {
+            return ultimo;
+        }
+        
         void intercambiar(int i, int j) {
             Persona* tmp = heap[i];
             heap[i] = heap[j];
@@ -70,5 +74,9 @@ class MaxHeap {
                 return true;
             }
             return false;
+        }
+
+        bool estaVacio() const {
+            return ultimo == 0;
         }
 };
