@@ -19,8 +19,8 @@ AVL o Red-Black Tree
 
 -- falta:
 manejar repeticiones de los dnis (ya esta)
-verificaciones 
+verificaciones (ya está)
 arbol avl
-rehashing
+rehashing (ya está)
 
 

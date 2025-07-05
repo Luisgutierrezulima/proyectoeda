@@ -57,8 +57,6 @@ class MaxHeap {
             }
             return top;
         }
-
-        //falta el actualizar????
         
         void mostrarTop(int n) {
             cout << "Proximos " << n << " en cola: "<<endl;

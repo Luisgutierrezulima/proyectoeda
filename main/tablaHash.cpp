@@ -88,8 +88,5 @@ public:
         }
         return tabla[i];
     }
-
-    
-
     
 };

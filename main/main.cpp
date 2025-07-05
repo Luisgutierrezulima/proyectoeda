@@ -69,6 +69,17 @@ void insertarAlHeap(const string& nombreArchivo, TablaHash& tabla, MaxHeap& heap
     cout << "Ya estaban en la cola: " << YaEstanEnCola << endl;
 }
 
+void insertarDesdeHeapAlAVL(MaxHeap& heap, ArbolAVL& arbol) {
+    Persona* p = heap.extraerMax(); 
+    if (!p) {
+        cout << "Cola vacía, no hay personas para ingresar al árbol." << endl;
+        return;
+    } else {
+        arbol.insertar(p->dni);
+        cout << "DNI: " << p->dni << "  Hora: " << p->horaEntrada << "." << endl;
+        p->setHora(); 
+    }
+}
 
 int main() {
     TablaHash tablaUsuarios(50000);
@@ -85,8 +96,8 @@ int main() {
              << "5. Consultar por hora"<<endl
              << "6. Ver estadisticas"<<endl
              << "7. Cargar desde archivo"<<endl
-             << "8. Salir"<<endl
-             << "9. Iniciar Cola desde archivo"<<endl
+             << "8. Iniciar Cola desde archivo"<<endl
+             << "9. Salir"<<endl
              << "Opcion: ";
 
         int opc;
@@ -104,7 +115,6 @@ int main() {
             cout << "Apellido: ";          cin >> p->apellido;
             cout << "DNI (Zona1, Zona2, Zona3, Zona4, Zona5): ";               cin >> p->dni;
             cout << "Rol (VIP,medico,seguridad,discapacitado): ";               cin >> p->rol;
-            //pongale zonas para que "seleccione como en el ROL"
             cout << "Zona: ";              cin >> p->zona;
             p->horaEntrada = ""; // Hora de ingreso se deja vacía inicialmente
             tablaUsuarios.insertar(p);
@@ -125,6 +135,7 @@ int main() {
             else    heapPrioridades.insertar(p);
         }
         else if (opc == 3) {
+            /*
             Persona* p = heapPrioridades.extraerMax();
             if (!p) 
             cout << "Cola vacia" <<endl;
@@ -135,6 +146,8 @@ int main() {
                 p->horaEntrada = h;
                 registroAccesos.insertar(p);
             }
+            */
+           insertarDesdeHeapAlAVL(heapPrioridades, registroAccesos);
         }
         else if (opc == 4) {
             heapPrioridades.mostrarTop(5);
@@ -155,18 +168,19 @@ int main() {
             getline(cin, archivo);
             cargarDesdeTxt(archivo, tablaUsuarios);
         }
-        else if (opc == 8) break;
-        else if (opc == 9) {
+        else if (opc == 8) {
             string archivo;
             cout << "Insertando al heap..." << endl;
             cout << "Nombre del archivo (con .txt): ";
             getline(cin, archivo);
             insertarAlHeap(archivo, tablaUsuarios, heapPrioridades);
         }
+        else if (opc == 9) break;
         else {
             cout << "Opcion no valida."<<endl;
         }
 
+        
     }
     return 0;
 }
